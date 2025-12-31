@@ -5,7 +5,7 @@
 # Requires: NVIDIA Container Toolkit
 # Install: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
-FROM nvidia/cuda:12.1-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
 
 # Install Python and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,8 +36,9 @@ RUN pip install --no-cache-dir \
 COPY src/ ./src/
 
 # Pre-download the "distil-large-v3" model (recommended for GPU)
-# This makes first startup faster but increases image size (~1GB)
-RUN python -c "from faster_whisper import WhisperModel; WhisperModel('distil-large-v3', device='cuda', compute_type='int8_float16')"
+# Download using CPU during build (model files are the same)
+# At runtime, the model will load with CUDA
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('distil-large-v3', device='cpu', compute_type='int8')"
 
 # Expose WebSocket port
 EXPOSE 8765
