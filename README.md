@@ -16,23 +16,23 @@ Choose your preferred installation method:
 ### Option 1: Docker (Recommended)
 
 ```bash
-# CPU (works on any machine)
-docker run -d -p 8765:8765 obsidian-stt:cpu
+# CPU (works on any machine, including Mac)
+docker run -d -p 8765:8765 ghcr.io/kevinraymond/stt-server:latest
 
-# GPU (requires NVIDIA GPU)
-docker run -d --gpus all -p 8765:8765 obsidian-stt:gpu
+# GPU (requires NVIDIA GPU + Container Toolkit)
+docker run -d --gpus all -p 8765:8765 ghcr.io/kevinraymond/stt-server:gpu
 ```
 
 ### Option 2: One-Line Install
 
 **Linux/macOS:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/obsidian-stt-server/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kevinraymond/stt-server/main/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell as Admin):**
 ```powershell
-iwr -useb https://raw.githubusercontent.com/YOUR_USERNAME/obsidian-stt-server/main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/kevinraymond/stt-server/main/scripts/install.ps1 | iex
 ```
 
 ### Option 3: pip (for Python developers)
@@ -125,8 +125,8 @@ This is normal on CPU-only machines. The server will automatically use CPU mode.
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/obsidian-stt-server
-cd obsidian-stt-server
+git clone https://github.com/kevinraymond/stt-server
+cd stt-server
 
 # Install with uv
 uv sync
