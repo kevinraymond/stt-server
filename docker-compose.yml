@@ -1,0 +1,39 @@
+# Docker Compose for obsidian-stt-server
+#
+# Usage:
+#   CPU: docker compose up stt-cpu
+#   GPU: docker compose up stt-gpu
+#
+# Or build and run specific service:
+#   docker compose build stt-cpu && docker compose up stt-cpu
+
+services:
+  # CPU version - works on any machine
+  stt-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.cpu
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # GPU version - requires NVIDIA GPU and Container Toolkit
+  stt-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -1,0 +1,51 @@
+# GPU-optimized Dockerfile for obsidian-stt-server
+# Build: docker build -f Dockerfile.gpu -t obsidian-stt:gpu .
+# Run: docker run --gpus all -p 8765:8765 obsidian-stt:gpu
+#
+# Requires: NVIDIA Container Toolkit
+# Install: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+
+FROM nvidia/cuda:12.1-runtime-ubuntu22.04
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3-pip \
+    python3.11-venv \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Set working directory
+WORKDIR /app
+
+# Upgrade pip
+RUN python -m pip install --upgrade pip
+
+# Install PyTorch with CUDA support
+RUN pip install --no-cache-dir \
+    torch --index-url https://download.pytorch.org/whl/cu121
+
+# Install other dependencies
+RUN pip install --no-cache-dir \
+    websockets>=12.0 \
+    numpy>=1.24.0 \
+    faster-whisper>=1.0.0
+
+# Copy application code
+COPY src/ ./src/
+
+# Pre-download the "distil-large-v3" model (recommended for GPU)
+# This makes first startup faster but increases image size (~1GB)
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('distil-large-v3', device='cuda', compute_type='int8_float16')"
+
+# Expose WebSocket port
+EXPOSE 8765
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Default command - auto-detect will choose GPU settings
+CMD ["python", "-m", "src.cli", "--auto", "--host", "0.0.0.0"]
