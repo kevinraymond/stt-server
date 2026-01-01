@@ -19,9 +19,14 @@ Choose your preferred installation method:
 # CPU (works on any machine, including Mac)
 docker run -d -p 8765:8765 ghcr.io/kevinraymond/stt-server:latest
 
-# GPU (requires NVIDIA GPU + Container Toolkit)
+# GPU (requires NVIDIA GPU + driver 545+)
 docker run -d --gpus all -p 8765:8765 ghcr.io/kevinraymond/stt-server:gpu
+
+# GPU Legacy (for older drivers 525-544)
+docker run -d --gpus all -p 8765:8765 ghcr.io/kevinraymond/stt-server:gpu-legacy
 ```
+
+Check your driver version with `nvidia-smi`.
 
 ### Option 2: One-Line Install
 
@@ -118,8 +123,13 @@ This is normal on CPU-only machines. The server will automatically use CPU mode.
 
 ### GPU Support (Optional)
 - NVIDIA GPU with CUDA support
-- NVIDIA drivers installed
+- NVIDIA drivers: 545+ for `:gpu` image, 525+ for `:gpu-legacy` image
 - For Docker: [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+
+| Docker Image | CUDA | cuDNN | Driver Required |
+|--------------|------|-------|-----------------|
+| `:gpu` | 12.3 | 9 | 545+ |
+| `:gpu-legacy` | 12.1 | 8 | 525+ |
 
 ## Development
 
