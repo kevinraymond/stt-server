@@ -1,12 +1,15 @@
-# GPU-optimized Dockerfile for obsidian-stt-server
-# Build: docker build -f Dockerfile.gpu -t obsidian-stt:gpu .
-# Run: docker run --gpus all -p 8765:8765 obsidian-stt:gpu
+# GPU Dockerfile for older NVIDIA drivers (legacy support)
+# Build: docker build -f Dockerfile.gpu-legacy -t obsidian-stt:gpu-legacy .
+# Run: docker run --gpus all -p 8765:8765 obsidian-stt:gpu-legacy
 #
 # Requires:
-#   - NVIDIA driver 545+ (check with: nvidia-smi)
+#   - NVIDIA driver 525+ (check with: nvidia-smi)
 #   - NVIDIA Container Toolkit: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
+#
+# Note: Uses CUDA 12.1 + cuDNN 8 for broader driver compatibility.
+# For newer drivers (545+), use Dockerfile.gpu instead for better performance.
 
-FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 # Install Python and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -28,9 +31,11 @@ RUN pip install --no-cache-dir \
     torch --index-url https://download.pytorch.org/whl/cu121
 
 # Install other dependencies
+# Pin ctranslate2==4.4.0 for cuDNN 8 compatibility (cuDNN 9 requires ctranslate2>=4.5.0)
 RUN pip install --no-cache-dir \
     websockets>=12.0 \
     numpy>=1.24.0 \
+    ctranslate2==4.4.0 \
     faster-whisper>=1.0.0
 
 # Copy application code
